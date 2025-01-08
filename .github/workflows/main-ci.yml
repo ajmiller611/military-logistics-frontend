@@ -43,9 +43,3 @@ jobs:
       # Build the project
       - name: Build Project
         run: npm run build
-
-      # SonarCloud Analysis
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
