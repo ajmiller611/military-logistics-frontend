@@ -13,11 +13,11 @@
 # testing
 /coverage
 .jest/
-jest.config.ts
 
 # next.js
 /.next/
 /out/
+.swc/
 
 # production
 /build
@@ -37,12 +37,8 @@ yarn-error.log*
 .env.production.local
 .env.testing.local
 
-# vercel
-.vercel
-
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # tailwindCSS
 .tailwind/
