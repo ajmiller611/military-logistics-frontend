@@ -24,9 +24,22 @@ jobs:
           node-version: 18.x
           cache: 'npm'
 
+      # Cache node_modules
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
       # Install dependencies
       - name: Install Dependencies
         run: npm install
+
+      # Run lint:fix to automatically fix fixable issues
+      - name: Run Lint:Fix
+        run: npm run lint:fix
 
       # Run Prettier
       - name: Run Prettier
@@ -36,9 +49,16 @@ jobs:
       - name: Lint Code
         run: npm run lint
 
-      # Run tests
+      # Run tests and generate coverage report
       - name: Run Tests
-        run: npm test
+        run: npm run test:coverage
+
+      # Upload coverage report as artifact
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: ./coverage/lcov-report
 
       # Build the project
       - name: Build Project
