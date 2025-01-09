@@ -11,6 +11,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs:
+      npm-cache-hit: ${{ steps.cache-npm.outputs.cache-hit }}
 
     steps:
       - name: Checkout Code
@@ -23,9 +25,10 @@ jobs:
           cache: 'npm'
 
       - name: Cache NPM Cache
+        id: cache-npm
         uses: actions/cache@v3
         with:
-          path: ~/.npm
+          path: ${{ github.workspace}}/.npm
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-
@@ -72,7 +75,7 @@ jobs:
       - name: Cache NPM Cache
         uses: actions/cache@v3
         with:
-          path: ~/.npm
+          path: ${{ github.workspace}}/.npm
           key: ${{ runner.os }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-cache-
