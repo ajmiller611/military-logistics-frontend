@@ -34,7 +34,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright Browsers
-        run: npx playwright install
+        run: npx playwright install --with-deps
 
       - name: Run Lint:Fix
         run: npm run lint:fix
