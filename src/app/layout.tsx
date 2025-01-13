@@ -1,16 +1,9 @@
-import type { Metadata } from 'next';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from '@/theme';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
-import '@/styles/globals.css';
-
-export const metadata: Metadata = {
-  title: 'Military Logistics Dashboard',
-  description:
-    'A professional portfolio project for showcasing a logistics management system.',
-};
+import DashboardWrapper from '@/components/DashboardWrapper';
 
 export default function RootLayout({
   children,
@@ -24,7 +17,7 @@ export default function RootLayout({
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            {children}
+            <DashboardWrapper>{children}</DashboardWrapper>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

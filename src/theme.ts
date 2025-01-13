@@ -9,28 +9,15 @@ const roboto = Roboto({
 });
 
 const theme = createTheme({
-  colorSchemes: { light: true, dark: true },
-  cssVariables: {
-    colorSchemeSelector: 'class',
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#121212',
+      paper: '#121212',
+    },
   },
   typography: {
-    fontFamily: roboto.style.fontFamily,
-  },
-  components: {
-    MuiAlert: {
-      styleOverrides: {
-        root: {
-          variants: [
-            {
-              props: { severity: 'info' },
-              style: {
-                backgroundColor: '#60a5fa',
-              },
-            },
-          ],
-        },
-      },
-    },
+    fontFamily: `${roboto.style.fontFamily}, 'Helvetica', 'Arial', sans-serif`,
   },
 });
 
