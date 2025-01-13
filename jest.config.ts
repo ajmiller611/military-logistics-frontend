@@ -37,6 +37,7 @@ const config: Config = {
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    'next/font/(.*)': `<rootDir>/__mocks__/nextFontMock.js`,
   },
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
