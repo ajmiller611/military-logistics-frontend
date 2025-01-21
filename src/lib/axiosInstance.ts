@@ -4,7 +4,10 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: '', // Placeholder: Add API base URL here
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
   withCredentials: true,
 });
 
