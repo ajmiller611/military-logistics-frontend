@@ -9,9 +9,11 @@ import axios from 'axios';
 const apiEndpoint = '/users/';
 
 export default function RegisterUserPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState<Record<string, string>>({});
   const handleUserSubmit = async (data: UserInput) => {
     console.log('User data submitted: ', data);
+    setIsLoading(true);
     setApiResponse({}); // Clear previous errors
     try {
       const response = await axiosInstance.post(apiEndpoint, data);
@@ -42,12 +44,18 @@ export default function RegisterUserPage() {
       } else {
         console.error('An unexpected error occurred: ', error);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <Box>
-      <RegisterUserForm onSubmit={handleUserSubmit} apiResponse={apiResponse} />
+      <RegisterUserForm
+        onSubmit={handleUserSubmit}
+        isLoading={isLoading}
+        apiResponse={apiResponse}
+      />
     </Box>
   );
 }

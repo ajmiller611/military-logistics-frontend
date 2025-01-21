@@ -21,9 +21,11 @@ const FormGrid = styled(Grid2)(() => ({
 export default function RegisterUserForm({
   onSubmit,
   apiResponse,
+  isLoading,
 }: Readonly<{
   onSubmit: SubmitHandler<UserInput>;
   apiResponse?: Record<string, string>;
+  isLoading: boolean;
 }>) {
   const {
     register,
@@ -109,8 +111,13 @@ export default function RegisterUserForm({
           )}
         </FormGrid>
       </Grid2>
-      <Button variant="contained" type="submit" endIcon={<SendIcon />}>
-        Submit
+      <Button
+        variant="contained"
+        type="submit"
+        endIcon={<SendIcon />}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Submitting...' : 'Submit'}
       </Button>
     </Box>
   );
