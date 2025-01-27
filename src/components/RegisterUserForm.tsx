@@ -39,7 +39,11 @@ export default function RegisterUserForm({
     onSubmit(data as UserInput);
   };
   return (
-    <Box component="form" onSubmit={handleSubmit(handleFormSubmit)}>
+    <Box
+      component="form"
+      aria-label="user registration form"
+      onSubmit={handleSubmit(handleFormSubmit)}
+    >
       {apiResponse?.success && (
         <Typography color="success.main" sx={{ mb: 2 }}>
           {apiResponse.success}
