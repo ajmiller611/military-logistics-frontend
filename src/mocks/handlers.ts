@@ -10,6 +10,8 @@ export const handlers = [
         { message: 'Username already taken' },
         { status: 409 },
       );
+    } else if (userData.username === 'invalidUsername') {
+      return HttpResponse.json({ message: 'Invalid input' }, { status: 400 });
     }
 
     return HttpResponse.json(
