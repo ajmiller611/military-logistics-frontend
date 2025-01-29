@@ -49,6 +49,13 @@ export default function RegisterUserForm({
           {apiResponse.success}
         </Typography>
       )}
+
+      {apiResponse?.error && (
+        <FormHelperText error sx={{ mb: 2 }}>
+          {apiResponse.error}
+        </FormHelperText>
+      )}
+
       <Grid2 container spacing={2}>
         <FormGrid size={{ xs: 12, md: 6 }}>
           <FormLabel htmlFor="username" required>
