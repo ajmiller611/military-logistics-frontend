@@ -5,27 +5,27 @@ import { http, HttpResponse } from 'msw';
 
 const userRegistrationEndpoint = 'http://localhost:8080/users/';
 
+type MockData = {
+  username: string;
+  password: string;
+  email: string;
+};
+
+let mockData: MockData;
+
 describe('RegisterUserPage Integration Tests', () => {
-  test('handles user registration success', async () => {
-    const mockData = {
+  beforeEach(() => {
+    mockData = {
       username: 'newUser',
       password: 'password',
       email: 'newuser@example.com',
     };
+  });
 
+  test('handles user registration success', async () => {
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(
@@ -35,7 +35,7 @@ describe('RegisterUserPage Integration Tests', () => {
   });
 
   test('handles username conflict error', async () => {
-    const mockData = {
+    mockData = {
       username: 'existingUser',
       password: 'password',
       email: 'test@example.com',
@@ -43,17 +43,7 @@ describe('RegisterUserPage Integration Tests', () => {
 
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(screen.getByText(/Username already taken/i)).toBeInTheDocument();
@@ -61,7 +51,7 @@ describe('RegisterUserPage Integration Tests', () => {
   });
 
   test('handles invalid input error', async () => {
-    const mockData = {
+    mockData = {
       username: 'invalidUsername',
       password: 'password',
       email: 'test@example.com',
@@ -69,17 +59,7 @@ describe('RegisterUserPage Integration Tests', () => {
 
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(screen.getByText(/invalid input/i)).toBeInTheDocument();
@@ -87,12 +67,6 @@ describe('RegisterUserPage Integration Tests', () => {
   });
 
   test('handles unexpected status code error', async () => {
-    const mockData = {
-      username: 'testUser',
-      password: 'password',
-      email: 'test@example.com',
-    };
-
     server.use(
       http.post(userRegistrationEndpoint, async () => {
         return HttpResponse.json(
@@ -104,17 +78,7 @@ describe('RegisterUserPage Integration Tests', () => {
 
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(
@@ -123,3 +87,17 @@ describe('RegisterUserPage Integration Tests', () => {
     });
   });
 });
+
+function mockUserInputEvents(mockData: MockData) {
+  fireEvent.input(screen.getByLabelText(/username/i), {
+    target: { value: mockData.username },
+  });
+  fireEvent.input(screen.getByLabelText(/password/i), {
+    target: { value: mockData.password },
+  });
+  fireEvent.input(screen.getByLabelText(/email/i), {
+    target: { value: mockData.email },
+  });
+
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+}

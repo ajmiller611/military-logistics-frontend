@@ -7,7 +7,17 @@ jest.mock('@/lib/axiosInstance', () => ({
   post: jest.fn(),
 }));
 
+let mockData: UserInput;
+
 describe('RegisterUserPage', () => {
+  beforeEach(() => {
+    mockData = {
+      username: 'testUser',
+      password: 'password',
+      email: 'test@example.com',
+    };
+  });
+
   test('renders the RegisterUserForm component', () => {
     render(<RegisterUserPage />);
 
@@ -17,12 +27,6 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles successful user registration', async () => {
-    const mockData: UserInput = {
-      username: 'testUser',
-      password: 'password',
-      email: 'test@example.com',
-    };
-
     (axiosInstance.post as jest.Mock).mockResolvedValueOnce({
       status: 201,
       data: { message: 'User created successfully!' },
@@ -30,17 +34,7 @@ describe('RegisterUserPage', () => {
 
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(
@@ -52,7 +46,7 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles username conflict error', async () => {
-    const mockData: UserInput = {
+    mockData = {
       username: 'existingUser',
       password: 'password',
       email: 'test@example.com',
@@ -68,17 +62,7 @@ describe('RegisterUserPage', () => {
 
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(
@@ -92,7 +76,7 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles invalid input error', async () => {
-    const mockData: UserInput = {
+    mockData = {
       username: 'invalidUsername',
       password: 'password',
       email: 'test@example.com',
@@ -108,17 +92,7 @@ describe('RegisterUserPage', () => {
 
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(
@@ -130,12 +104,6 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles unexpected status code response error', async () => {
-    const mockData: UserInput = {
-      username: 'testUser',
-      password: 'password',
-      email: 'test@example.com',
-    };
-
     (axiosInstance.post as jest.Mock).mockRejectedValueOnce({
       isAxiosError: true,
       response: {
@@ -146,17 +114,7 @@ describe('RegisterUserPage', () => {
 
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(
@@ -168,29 +126,13 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles axios error type but no response present', async () => {
-    const mockData: UserInput = {
-      username: 'testUser',
-      password: 'password',
-      email: 'test@example.com',
-    };
-
     (axiosInstance.post as jest.Mock).mockRejectedValueOnce({
       isAxiosError: true,
     });
 
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(
@@ -206,29 +148,13 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles an unexpected error', async () => {
-    const mockData: UserInput = {
-      username: 'testUser',
-      password: 'password',
-      email: 'test@example.com',
-    };
-
     (axiosInstance.post as jest.Mock).mockRejectedValueOnce({
       isAxiosError: false,
     });
 
     render(<RegisterUserPage />);
 
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    mockUserInputEvents(mockData);
 
     await waitFor(() => {
       expect(
@@ -243,3 +169,23 @@ describe('RegisterUserPage', () => {
     expect(axiosInstance.post).toHaveBeenCalledWith('/users/', mockData);
   });
 });
+
+type MockData = {
+  username: string;
+  password: string;
+  email: string;
+};
+
+function mockUserInputEvents(mockData: MockData) {
+  fireEvent.input(screen.getByLabelText(/username/i), {
+    target: { value: mockData.username },
+  });
+  fireEvent.input(screen.getByLabelText(/password/i), {
+    target: { value: mockData.password },
+  });
+  fireEvent.input(screen.getByLabelText(/email/i), {
+    target: { value: mockData.email },
+  });
+
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+}
