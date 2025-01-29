@@ -46,6 +46,8 @@ jobs:
         run: npm run lint
 
       - name: Run Tests and Generate Coverage Report
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL}}
         run: npm run test:coverage -- --ci
 
       - name: Upload Coverage Report

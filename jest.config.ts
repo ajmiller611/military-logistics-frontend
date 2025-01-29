@@ -17,6 +17,7 @@ const config: Config = {
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts', // Exclude type declarations
     '!src/**/_*.{ts,tsx}', // Ignore Next.js special files like _app.tsx
+    '!src/mocks/**', // Exclude API mocking setup files
   ],
 
   // The directory where Jest should output its coverage files
@@ -44,10 +45,15 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 
   // The test environment that will be used for testing
-  testEnvironment: 'jsdom',
+  testEnvironment: 'jest-fixed-jsdom',
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/tests/e2e'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.next/',
+    '/tests/e2e',
+    '/src/__tests__/helpers',
+  ],
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   transformIgnorePatterns: ['/node_modules/', '\\.pnp\\.[^\\/]+$'],
