@@ -17,6 +17,7 @@ const config: Config = {
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts', // Exclude type declarations
     '!src/**/_*.{ts,tsx}', // Ignore Next.js special files like _app.tsx
+    '!src/mocks/**', // Exclude API mocking setup files
   ],
 
   // The directory where Jest should output its coverage files
