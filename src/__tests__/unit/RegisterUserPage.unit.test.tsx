@@ -1,7 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import RegisterUserPage from '@/app/users/register/page';
 import axiosInstance from '@/lib/axiosInstance';
 import { UserInput } from '@/schemas/userSchema';
+import { submitUserForm } from '../helpers/RegisterUserPage.helpers';
 
 jest.mock('@/lib/axiosInstance', () => ({
   post: jest.fn(),
@@ -29,22 +30,6 @@ describe('RegisterUserPage', () => {
     (axiosInstance.post as jest.Mock).mockRejectedValueOnce(error);
   };
 
-  const submitUserForm = () => {
-    render(<RegisterUserPage />);
-
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
-  };
-
   test('renders the RegisterUserForm component', () => {
     render(<RegisterUserPage />);
 
@@ -55,7 +40,7 @@ describe('RegisterUserPage', () => {
 
   test('handles successful user registration', async () => {
     mockApiCall(201, { message: 'User created successfully!' });
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(
@@ -72,7 +57,7 @@ describe('RegisterUserPage', () => {
       isAxiosError: true,
       response: { status: 409, data: { message: 'Username already taken' } },
     });
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(
@@ -91,7 +76,7 @@ describe('RegisterUserPage', () => {
       isAxiosError: true,
       response: { status: 400, data: { message: 'Invalid input' } },
     });
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(
@@ -107,7 +92,7 @@ describe('RegisterUserPage', () => {
       isAxiosError: true,
       response: { status: 999, data: { message: 'An error occurred' } },
     });
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(
@@ -120,7 +105,7 @@ describe('RegisterUserPage', () => {
 
   test('handles axios error type but no response present', async () => {
     mockApiCallError({ isAxiosError: true });
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(
@@ -137,7 +122,7 @@ describe('RegisterUserPage', () => {
 
   test('handles an unexpected error', async () => {
     mockApiCallError({ isAxiosError: false });
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(

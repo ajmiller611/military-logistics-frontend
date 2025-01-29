@@ -1,7 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import RegisterUserPage from '@/app/users/register/page';
+import { screen, waitFor } from '@testing-library/react';
 import { server } from '@/mocks/server';
 import { http, HttpResponse } from 'msw';
+import { submitUserForm } from '../helpers/RegisterUserPage.helpers';
 
 const userRegistrationEndpoint = 'http://localhost:8080/users/';
 
@@ -22,24 +22,8 @@ describe('RegisterUserPage Integration Tests', () => {
     };
   });
 
-  const submitUserForm = () => {
-    render(<RegisterUserPage />);
-
-    fireEvent.input(screen.getByLabelText(/username/i), {
-      target: { value: mockData.username },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: mockData.password },
-    });
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: mockData.email },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
-  };
-
   test('handles user registration success', async () => {
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(
@@ -50,7 +34,7 @@ describe('RegisterUserPage Integration Tests', () => {
 
   test('handles username conflict error', async () => {
     mockData.username = 'existingUser';
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(screen.getByText(/Username already taken/i)).toBeInTheDocument();
@@ -59,7 +43,7 @@ describe('RegisterUserPage Integration Tests', () => {
 
   test('handles invalid input error', async () => {
     mockData.username = 'invalidUsername';
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(screen.getByText(/invalid input/i)).toBeInTheDocument();
@@ -76,7 +60,7 @@ describe('RegisterUserPage Integration Tests', () => {
       }),
     );
 
-    submitUserForm();
+    submitUserForm(mockData);
 
     await waitFor(() => {
       expect(
