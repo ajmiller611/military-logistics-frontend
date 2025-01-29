@@ -32,17 +32,28 @@ export default function RegisterUserPage() {
               break;
             case 400: // Bad Request
               console.error('Invalid input: ', error.response.data);
-              alert('Invalid input. Please check your data and try again.');
+              setApiResponse({
+                error: 'Invalid input. Please check your data and try again.',
+              });
               break;
             default:
               console.error('An error occurred: ', error.response.data);
+              setApiResponse({
+                error: 'An error occurred. Please try again later. ',
+              });
               break;
           }
         } else {
           console.error('No response received: ', error.message);
+          setApiResponse({
+            error: 'An error with the server occurred. Please try again later.',
+          });
         }
       } else {
         console.error('An unexpected error occurred: ', error);
+        setApiResponse({
+          error: 'An unexpected error occurred. Please try again later.',
+        });
       }
     } finally {
       setIsLoading(false);
