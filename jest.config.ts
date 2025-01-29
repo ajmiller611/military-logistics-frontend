@@ -48,7 +48,12 @@ const config: Config = {
   testEnvironment: 'jest-fixed-jsdom',
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/tests/e2e'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.next/',
+    '/tests/e2e',
+    '/src/__tests__/helpers',
+  ],
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   transformIgnorePatterns: ['/node_modules/', '\\.pnp\\.[^\\/]+$'],
