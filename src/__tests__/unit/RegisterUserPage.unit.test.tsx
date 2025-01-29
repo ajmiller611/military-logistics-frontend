@@ -7,9 +7,9 @@ jest.mock('@/lib/axiosInstance', () => ({
   post: jest.fn(),
 }));
 
-let mockData: UserInput;
-
 describe('RegisterUserPage', () => {
+  let mockData: UserInput;
+
   beforeEach(() => {
     mockData = {
       username: 'testUser',
@@ -17,6 +17,33 @@ describe('RegisterUserPage', () => {
       email: 'test@example.com',
     };
   });
+
+  const mockApiCall = (statusCode: number, response: unknown) => {
+    (axiosInstance.post as jest.Mock).mockResolvedValueOnce({
+      status: statusCode,
+      data: response,
+    });
+  };
+
+  const mockApiCallError = (error: unknown) => {
+    (axiosInstance.post as jest.Mock).mockRejectedValueOnce(error);
+  };
+
+  const submitUserForm = () => {
+    render(<RegisterUserPage />);
+
+    fireEvent.input(screen.getByLabelText(/username/i), {
+      target: { value: mockData.username },
+    });
+    fireEvent.input(screen.getByLabelText(/password/i), {
+      target: { value: mockData.password },
+    });
+    fireEvent.input(screen.getByLabelText(/email/i), {
+      target: { value: mockData.email },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+  };
 
   test('renders the RegisterUserForm component', () => {
     render(<RegisterUserPage />);
@@ -27,14 +54,8 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles successful user registration', async () => {
-    (axiosInstance.post as jest.Mock).mockResolvedValueOnce({
-      status: 201,
-      data: { message: 'User created successfully!' },
-    });
-
-    render(<RegisterUserPage />);
-
-    mockUserInputEvents(mockData);
+    mockApiCall(201, { message: 'User created successfully!' });
+    submitUserForm();
 
     await waitFor(() => {
       expect(
@@ -46,23 +67,12 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles username conflict error', async () => {
-    mockData = {
-      username: 'existingUser',
-      password: 'password',
-      email: 'test@example.com',
-    };
-
-    (axiosInstance.post as jest.Mock).mockRejectedValueOnce({
+    mockData.username = 'existingUser';
+    mockApiCallError({
       isAxiosError: true,
-      response: {
-        status: 409,
-        data: { message: 'Username already taken' },
-      },
+      response: { status: 409, data: { message: 'Username already taken' } },
     });
-
-    render(<RegisterUserPage />);
-
-    mockUserInputEvents(mockData);
+    submitUserForm();
 
     await waitFor(() => {
       expect(
@@ -76,23 +86,12 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles invalid input error', async () => {
-    mockData = {
-      username: 'invalidUsername',
-      password: 'password',
-      email: 'test@example.com',
-    };
-
-    (axiosInstance.post as jest.Mock).mockRejectedValueOnce({
+    mockData.username = 'invalidUsername';
+    mockApiCallError({
       isAxiosError: true,
-      response: {
-        status: 400,
-        data: { message: 'Invalid input' },
-      },
+      response: { status: 400, data: { message: 'Invalid input' } },
     });
-
-    render(<RegisterUserPage />);
-
-    mockUserInputEvents(mockData);
+    submitUserForm();
 
     await waitFor(() => {
       expect(
@@ -104,17 +103,11 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles unexpected status code response error', async () => {
-    (axiosInstance.post as jest.Mock).mockRejectedValueOnce({
+    mockApiCallError({
       isAxiosError: true,
-      response: {
-        status: 999,
-        data: { message: 'An error occurred' },
-      },
+      response: { status: 999, data: { message: 'An error occurred' } },
     });
-
-    render(<RegisterUserPage />);
-
-    mockUserInputEvents(mockData);
+    submitUserForm();
 
     await waitFor(() => {
       expect(
@@ -126,13 +119,8 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles axios error type but no response present', async () => {
-    (axiosInstance.post as jest.Mock).mockRejectedValueOnce({
-      isAxiosError: true,
-    });
-
-    render(<RegisterUserPage />);
-
-    mockUserInputEvents(mockData);
+    mockApiCallError({ isAxiosError: true });
+    submitUserForm();
 
     await waitFor(() => {
       expect(
@@ -148,13 +136,8 @@ describe('RegisterUserPage', () => {
   });
 
   test('handles an unexpected error', async () => {
-    (axiosInstance.post as jest.Mock).mockRejectedValueOnce({
-      isAxiosError: false,
-    });
-
-    render(<RegisterUserPage />);
-
-    mockUserInputEvents(mockData);
+    mockApiCallError({ isAxiosError: false });
+    submitUserForm();
 
     await waitFor(() => {
       expect(
@@ -169,23 +152,3 @@ describe('RegisterUserPage', () => {
     expect(axiosInstance.post).toHaveBeenCalledWith('/users/', mockData);
   });
 });
-
-type MockData = {
-  username: string;
-  password: string;
-  email: string;
-};
-
-function mockUserInputEvents(mockData: MockData) {
-  fireEvent.input(screen.getByLabelText(/username/i), {
-    target: { value: mockData.username },
-  });
-  fireEvent.input(screen.getByLabelText(/password/i), {
-    target: { value: mockData.password },
-  });
-  fireEvent.input(screen.getByLabelText(/email/i), {
-    target: { value: mockData.email },
-  });
-
-  fireEvent.click(screen.getByRole('button', { name: /submit/i }));
-}

@@ -11,21 +11,35 @@ type MockData = {
   email: string;
 };
 
-let mockData: MockData;
-
 describe('RegisterUserPage Integration Tests', () => {
+  let mockData: MockData;
+
   beforeEach(() => {
     mockData = {
-      username: 'newUser',
+      username: 'testUser',
       password: 'password',
-      email: 'newuser@example.com',
+      email: 'test@example.com',
     };
   });
 
-  test('handles user registration success', async () => {
+  const submitUserForm = () => {
     render(<RegisterUserPage />);
 
-    mockUserInputEvents(mockData);
+    fireEvent.input(screen.getByLabelText(/username/i), {
+      target: { value: mockData.username },
+    });
+    fireEvent.input(screen.getByLabelText(/password/i), {
+      target: { value: mockData.password },
+    });
+    fireEvent.input(screen.getByLabelText(/email/i), {
+      target: { value: mockData.email },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+  };
+
+  test('handles user registration success', async () => {
+    submitUserForm();
 
     await waitFor(() => {
       expect(
@@ -35,15 +49,8 @@ describe('RegisterUserPage Integration Tests', () => {
   });
 
   test('handles username conflict error', async () => {
-    mockData = {
-      username: 'existingUser',
-      password: 'password',
-      email: 'test@example.com',
-    };
-
-    render(<RegisterUserPage />);
-
-    mockUserInputEvents(mockData);
+    mockData.username = 'existingUser';
+    submitUserForm();
 
     await waitFor(() => {
       expect(screen.getByText(/Username already taken/i)).toBeInTheDocument();
@@ -51,15 +58,8 @@ describe('RegisterUserPage Integration Tests', () => {
   });
 
   test('handles invalid input error', async () => {
-    mockData = {
-      username: 'invalidUsername',
-      password: 'password',
-      email: 'test@example.com',
-    };
-
-    render(<RegisterUserPage />);
-
-    mockUserInputEvents(mockData);
+    mockData.username = 'invalidUsername';
+    submitUserForm();
 
     await waitFor(() => {
       expect(screen.getByText(/invalid input/i)).toBeInTheDocument();
@@ -76,9 +76,7 @@ describe('RegisterUserPage Integration Tests', () => {
       }),
     );
 
-    render(<RegisterUserPage />);
-
-    mockUserInputEvents(mockData);
+    submitUserForm();
 
     await waitFor(() => {
       expect(
@@ -87,17 +85,3 @@ describe('RegisterUserPage Integration Tests', () => {
     });
   });
 });
-
-function mockUserInputEvents(mockData: MockData) {
-  fireEvent.input(screen.getByLabelText(/username/i), {
-    target: { value: mockData.username },
-  });
-  fireEvent.input(screen.getByLabelText(/password/i), {
-    target: { value: mockData.password },
-  });
-  fireEvent.input(screen.getByLabelText(/email/i), {
-    target: { value: mockData.email },
-  });
-
-  fireEvent.click(screen.getByRole('button', { name: /submit/i }));
-}
