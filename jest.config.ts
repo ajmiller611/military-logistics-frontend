@@ -54,9 +54,15 @@ const config: Config = {
     '/tests/e2e',
     '/src/__tests__/helpers',
   ],
-
-  // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  transformIgnorePatterns: ['/node_modules/', '\\.pnp\\.[^\\/]+$'],
 };
 
-export default createJestConfig(config);
+export default async () => {
+  const nextJestConfig = await createJestConfig(config)();
+
+  // Override the transformIgnorePatterns (next/jest's default is too aggressive)
+  nextJestConfig.transformIgnorePatterns = [
+    '/node_modules/(?!msw|rettime|@mswjs|@open-draft|@bundled-es-modules)/',
+  ];
+
+  return nextJestConfig;
+};
