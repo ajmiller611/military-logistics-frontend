@@ -21,4 +21,10 @@ export const handlers = [
     const body = await request.json();
     return HttpResponse.json({ data: body });
   }),
+  http.post(api.inventory(), async () => {
+    return HttpResponse.json(
+      { message: 'Item created successfully!' },
+      { status: 201 },
+    );
+  }),
 ];
