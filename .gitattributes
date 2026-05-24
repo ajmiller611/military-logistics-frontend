@@ -1,0 +1,14 @@
+# Line endings normalization
+* text=auto eol=lf
+
+# Windows and Unix shell scripts line endings
+*.bat text eol=crlf
+*.sh text eol=lf
+
+# Image files should be treated as binary to prevent line ending normalization
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
