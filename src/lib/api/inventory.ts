@@ -38,3 +38,23 @@ export async function fetchItems(): Promise<Item[]> {
     throw new Error('An unexpected error occurred');
   }
 }
+
+/**
+ * Delete an inventory item by ID.
+ * Prompts the backend API for deletion.
+ * Throws an Error if the request fails.
+ */
+export async function deleteItem(itemId: number): Promise<void> {
+  try {
+    await axiosInstance.delete(`${apiEndpoint}/${itemId}`);
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ??
+        error.message ??
+        'Failed to delete item';
+      throw new Error(message);
+    }
+    throw new Error('An unexpected error occurred');
+  }
+}

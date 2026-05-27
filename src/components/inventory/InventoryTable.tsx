@@ -23,7 +23,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { type Item } from '@/types/Item';
-import { fetchItems } from '@/lib/api/inventory';
+import { fetchItems, deleteItem } from '@/lib/api/inventory';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
@@ -68,11 +68,25 @@ export default function InventoryTable() {
   };
 
   const handleEdit = (item: Item) => {
-    // Edit item logic here
+    router.push(`/dashboard/inventory/${item.id}/edit`);
   };
 
-  const handleDelete = (item: Item) => {
-    // Delete item logic here
+  const handleDelete = async (item: Item) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete item "${item.name}"?`,
+    );
+    if (!confirmed) {
+      return;
+    }
+    try {
+      setLoading(true);
+      await deleteItem(item.id);
+      await loadItems();
+      setLoading(false);
+    } catch (error) {
+      setError((error as Error).message);
+      setLoading(false);
+    }
   };
 
   const columns: GridColDef[] = [

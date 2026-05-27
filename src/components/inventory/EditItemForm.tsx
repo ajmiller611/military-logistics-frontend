@@ -1,54 +1,56 @@
 /**
- * Form component for creating a new item
+ * EditItemForm component
  *
- * Handles client-side validation using Zod and displays
- * field-level API errors returned from the backend.
- * Submission logic is delegated to the parent component.
+ * Form for editing an existing inventory item. Fetches item data on mount,
+ * populates form fields, and submits updates to parent component.
  */
 import {
   Box,
-  Typography,
-  FormHelperText,
-  Grid2,
-  FormLabel,
-  OutlinedInput,
   Button,
+  FormHelperText,
+  FormLabel,
+  Grid2,
+  OutlinedInput,
+  Typography,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { styled } from '@mui/material/styles';
 import { itemSchema, ItemFormData } from '@/schemas/itemSchema';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-// Reusable styled grid component
 const FormGrid = styled(Grid2)(() => ({
   display: 'flex',
   flexDirection: 'column',
 }));
 
 type Props = {
-  /** Callback function to handle form submission */
+  /** Initial values loaded from backend for editing */
+  defaultValues: { name: string; quantity: number; description: string };
+  /** Submit handler provided by page-level component */
   onSubmit: SubmitHandler<ItemFormData>;
-  /** Loading state for the form submission */
+  /** Indicates whether a submission is in progress */
   isLoading: boolean;
-  /** API-level validation or server errors mapped by field name */
+  /** Server-side validation or API errors mapped by field */
   apiResponse?: Record<string, string>;
 };
 
-export default function CreateItemForm({
+export default function EditItemForm({
+  defaultValues,
   onSubmit,
   apiResponse,
   isLoading,
 }: Readonly<Props>) {
-  // react-hook-form handles form state and integrates schema validation
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ItemFormData>({
     resolver: zodResolver(itemSchema),
+    defaultValues,
   });
 
+  // Forward validated form data to parent submit handler
   const handleFormSubmit: SubmitHandler<ItemFormData> = (data) => {
     onSubmit(data);
   };
@@ -56,7 +58,7 @@ export default function CreateItemForm({
   return (
     <Box
       component="form"
-      aria-label="item creation form"
+      aria-label="edit inventory item form"
       onSubmit={handleSubmit(handleFormSubmit)}
     >
       {apiResponse?.success && (
@@ -66,20 +68,17 @@ export default function CreateItemForm({
       )}
 
       {apiResponse?.error && (
-        <FormHelperText error sx={{ mb: 2 }}>
+        <Typography color="error.main" sx={{ mb: 2 }}>
           {apiResponse.error}
-        </FormHelperText>
+        </Typography>
       )}
 
       <Grid2 container spacing={2}>
         <FormGrid size={{ xs: 12, md: 6 }}>
-          <FormLabel htmlFor="itemName" required>
-            Item Name
-          </FormLabel>
+          <FormLabel htmlFor="name">Name</FormLabel>
           <OutlinedInput
-            id="itemName"
+            id="name"
             type="text"
-            placeholder="Item Name"
             required
             size="small"
             autoFocus
@@ -95,13 +94,10 @@ export default function CreateItemForm({
           )}
         </FormGrid>
         <FormGrid size={{ xs: 12, md: 6 }}>
-          <FormLabel htmlFor="quantity" required>
-            Quantity
-          </FormLabel>
+          <FormLabel htmlFor="quantity">Quantity</FormLabel>
           <OutlinedInput
             id="quantity"
             type="number"
-            placeholder="Quantity"
             required
             size="small"
             {...register('quantity', { valueAsNumber: true })}
@@ -115,15 +111,13 @@ export default function CreateItemForm({
             <FormHelperText error>{apiResponse.quantity}</FormHelperText>
           )}
         </FormGrid>
-        <FormGrid size={{ xs: 12 }}>
+        <FormGrid size={12}>
           <FormLabel htmlFor="description">Description</FormLabel>
           <OutlinedInput
             id="description"
             type="text"
-            placeholder="Description"
             multiline
-            rows={3}
-            size="small"
+            minRows={3}
             {...register('description')}
           />
           {errors.description && (
@@ -142,7 +136,7 @@ export default function CreateItemForm({
         endIcon={<SendIcon />}
         disabled={isLoading}
       >
-        {isLoading ? 'Submitting...' : 'Create Item'}
+        {isLoading ? 'Saving...' : 'Save Changes'}
       </Button>
     </Box>
   );

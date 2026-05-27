@@ -11,6 +11,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Toolbar from '@mui/material/Toolbar';
 import PersonIcon from '@mui/icons-material/Person';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import { usePathname, useRouter } from 'next/navigation';
 
 /** Width of the sidebar drawer */
@@ -28,6 +29,11 @@ const sidebarItems = [
     icon: <PersonIcon />,
     href: '/dashboard/users',
   },
+  {
+    label: 'Inventory',
+    icon: <InventoryIcon />,
+    href: '/dashboard/inventory',
+  }
 ];
 
 export interface DashboardSidebarProps {

@@ -9,7 +9,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import CreateItemForm from '@/components/inventory/CreateItemForm';
-import { CreateItemFormData } from '@/schemas/itemSchema';
+import { ItemFormData } from '@/schemas/itemSchema';
 import axiosInstance from '@/lib/axiosInstance';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -36,7 +36,7 @@ export default function CreateInventoryItemContainer() {
     return null;
   }
 
-  const handleItemSubmit = async (data: CreateItemFormData) => {
+  const handleItemSubmit = async (data: ItemFormData) => {
     console.log('Item data submitted: ', data);
     setIsLoading(true);
     setApiResponse({}); // Clear previous API messages
