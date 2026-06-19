@@ -35,6 +35,7 @@ export default function InvitationContainer() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState<Record<string, string>>({});
+  const [invitationLink, setInvitationLink] = useState<string | null>(null);
 
   if (loading || !user?.roles.includes('ADMIN')) {
     return null;
@@ -51,7 +52,9 @@ export default function InvitationContainer() {
       if (response.status === 201) {
         console.log('Invitation created successfully: ', response.data);
         setApiResponse({ success: 'Invitation created successfully!' });
-        router.push('/dashboard/users');
+        setInvitationLink(
+          `${window.location.origin}/register?token=${response.data.token}`,
+        );
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -76,12 +79,18 @@ export default function InvitationContainer() {
     }
   };
 
+  const handleBackToUsers = () => {
+    router.push('/dashboard/users');
+  };
+
   return (
     <Box>
       <InvitationForm
         onSubmit={handleInvitationSubmit}
         apiResponse={apiResponse}
         isLoading={isLoading}
+        invitationLink={invitationLink}
+        onBackToUsers={handleBackToUsers}
       />
     </Box>
   );

@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import axiosInstance from '@/lib/axiosInstance';
 import axios from 'axios';
 
-jest.mock('@/context/AuthContext');
 jest.mock('@/lib/axiosInstance');
 
 const mockedUseAuth = useAuth as jest.Mock;
@@ -93,10 +92,10 @@ describe('InvitationContainer Unit Tests', () => {
     expect(replaceMock).toHaveBeenCalledWith('/dashboard/users');
   });
 
-  test('successfully submits form and redirects to user dashboard', async () => {
+  test('successfully submits form and displays invitation link', async () => {
     mockedAxios.post.mockResolvedValue({
       status: 201,
-      data: {},
+      data: { token: 'sample-invitation-token' },
     });
     render(<InvitationContainer />);
 
@@ -107,14 +106,16 @@ describe('InvitationContainer Unit Tests', () => {
 
     await userEvent.type(emailInput, 'email@test.com');
     await userEvent.click(submitButton);
+
     expect(mockedAxios.post).toHaveBeenCalledWith('/invitations', {
       email: 'email@test.com',
       role: 'USER',
     });
 
-    expect(pushMock).toHaveBeenCalledWith('/dashboard/users');
     expect(
-      await screen.findByText(/invitation created successfully/i),
+      screen.getByDisplayValue(
+        `${window.location.origin}/register?token=sample-invitation-token`,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -204,5 +205,28 @@ describe('InvitationContainer Unit Tests', () => {
     expect(
       await screen.findByText(/an unknown error occurred/i),
     ).toBeInTheDocument();
+  });
+
+  test('navigates back to users dashboard when back button is clicked', async () => {
+    mockedAxios.post.mockResolvedValue({
+      status: 201,
+      data: { token: 'sample-invitation-token' },
+    });
+
+    render(<InvitationContainer />);
+
+    await userEvent.type(screen.getByLabelText(/email/i), 'email@test.com');
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /send invitation/i }),
+    );
+
+    const backButton = screen.getByRole('button', {
+      name: /back to users/i,
+    });
+
+    await userEvent.click(backButton);
+
+    expect(pushMock).toHaveBeenCalledWith('/dashboard/users');
   });
 });

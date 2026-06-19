@@ -18,6 +18,7 @@ import {
   invitationSchema,
 } from '@/schemas/invitationSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import CopyButton from './CopyButton';
 
 const FormGrid = styled(Grid2)(() => ({
   display: 'flex',
@@ -31,6 +32,10 @@ type Props = {
   isLoading: boolean;
   /** API-level validation or server errors mapped by field name */
   apiResponse?: Record<string, string>;
+  /** The generated invitation link */
+  invitationLink?: string | null;
+  /** Callback to navigate back to the users list */
+  onBackToUsers: () => void;
 };
 
 /**
@@ -44,6 +49,8 @@ export default function InvitationForm({
   onSubmit,
   apiResponse,
   isLoading,
+  invitationLink,
+  onBackToUsers,
 }: Readonly<Props>) {
   // react-hook-form handles form state and integrates schema validation via Zod
   const {
@@ -60,74 +67,97 @@ export default function InvitationForm({
   };
 
   return (
-    <Box
-      component="form"
-      aria-label="user invitation form"
-      noValidate // Disable HTML5 validation to rely on React Hook Form + Zod
-      onSubmit={handleSubmit(handleFormSubmit)}
-    >
-      {apiResponse?.success && (
-        <Typography color="success.main" sx={{ mb: 2 }}>
-          {apiResponse.success}
-        </Typography>
-      )}
-
-      {apiResponse?.error && (
-        <FormHelperText error sx={{ mb: 2 }}>
-          {apiResponse.error}
-        </FormHelperText>
-      )}
-
-      <Grid2 container spacing={2}>
-        <FormGrid size={{ xs: 12, md: 6 }}>
-          <FormLabel htmlFor="email" required>
-            Email
-          </FormLabel>
-          <OutlinedInput
-            id="email"
-            type="email"
-            size="small"
-            {...register('email')}
-          />
-          {errors.email && (
-            <FormHelperText error>
-              {(errors.email as { message: string }).message}
+    <>
+      {!invitationLink && (
+        <Box
+          component="form"
+          aria-label="user invitation form"
+          noValidate // Disable HTML5 validation to rely on React Hook Form + Zod
+          onSubmit={handleSubmit(handleFormSubmit)}
+        >
+          {apiResponse?.error && (
+            <FormHelperText error sx={{ mb: 2 }}>
+              {apiResponse.error}
             </FormHelperText>
           )}
-          {apiResponse?.email && (
-            <FormHelperText error>{apiResponse.email}</FormHelperText>
-          )}
-        </FormGrid>
-        <FormGrid size={{ xs: 12, md: 6 }}>
-          <InputLabel id="role-label" required>
-            Role
-          </InputLabel>
-          <Controller
-            name="role"
-            control={control}
-            defaultValue="USER"
-            render={({ field }) => (
-              <Select labelId="role-label" label="Role" size="small" {...field}>
-                <MenuItem value="USER">User</MenuItem>
-              </Select>
-            )}
-          />
-          {errors.role && (
-            <FormHelperText error>{errors.role.message}</FormHelperText>
-          )}
-          {apiResponse?.role && (
-            <FormHelperText error>{apiResponse.role}</FormHelperText>
-          )}
-        </FormGrid>
-      </Grid2>
-      <Button
-        variant="contained"
-        type="submit"
-        endIcon={<SendIcon />}
-        disabled={isLoading}
-      >
-        {isLoading ? 'Sending...' : 'Send Invitation'}
-      </Button>
-    </Box>
+
+          <Grid2 container spacing={2}>
+            <FormGrid size={{ xs: 12, md: 6 }}>
+              <FormLabel htmlFor="email" required>
+                Email
+              </FormLabel>
+              <OutlinedInput
+                id="email"
+                type="email"
+                size="small"
+                {...register('email')}
+              />
+              {errors.email && (
+                <FormHelperText error>
+                  {(errors.email as { message: string }).message}
+                </FormHelperText>
+              )}
+              {apiResponse?.email && (
+                <FormHelperText error>{apiResponse.email}</FormHelperText>
+              )}
+            </FormGrid>
+            <FormGrid size={{ xs: 12, md: 6 }}>
+              <InputLabel id="role-label" required>
+                Role
+              </InputLabel>
+              <Controller
+                name="role"
+                control={control}
+                defaultValue="USER"
+                render={({ field }) => (
+                  <Select
+                    labelId="role-label"
+                    label="Role"
+                    size="small"
+                    {...field}
+                  >
+                    <MenuItem value="USER">User</MenuItem>
+                  </Select>
+                )}
+              />
+              {errors.role && (
+                <FormHelperText error>{errors.role.message}</FormHelperText>
+              )}
+              {apiResponse?.role && (
+                <FormHelperText error>{apiResponse.role}</FormHelperText>
+              )}
+            </FormGrid>
+          </Grid2>
+          <Button
+            variant="contained"
+            type="submit"
+            endIcon={<SendIcon />}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Sending...' : 'Send Invitation'}
+          </Button>
+        </Box>
+      )}
+
+      {invitationLink && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Typography color="success.main">
+            Invitation created successfully!
+          </Typography>
+
+          <Typography variant="h5">Invitation Link</Typography>
+
+          <OutlinedInput value={invitationLink} readOnly fullWidth />
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <CopyButton textToCopy={invitationLink} />
+
+            <Button variant="contained" onClick={onBackToUsers}>
+              Back to Users
+            </Button>
+          </Box>
+        </Box>
+      )}
+    </>
   );
 }
