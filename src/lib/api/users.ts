@@ -1,6 +1,6 @@
 import axiosInstance from '@/lib/axiosInstance';
 import axios from 'axios';
-import { type LogisticsUser } from '@/types/LogisticsUser';
+import { type User } from '@/types/User';
 
 const apiEndpoint = '/users';
 
@@ -22,12 +22,10 @@ interface ApiResponse<T> {
  * Returns an array of LogisticsUser objects.
  * Throws an Error if the request fails.
  */
-export async function fetchUsers(): Promise<LogisticsUser[]> {
+export async function fetchUsers(): Promise<User[]> {
   try {
     const res =
-      await axiosInstance.get<ApiResponse<PagedResponse<LogisticsUser>>>(
-        apiEndpoint,
-      );
+      await axiosInstance.get<ApiResponse<PagedResponse<User>>>(apiEndpoint);
 
     return res.data.data.data;
   } catch (error: unknown) {

@@ -21,7 +21,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PageContainer from './PageContainer';
-import { type LogisticsUser } from '@/types/LogisticsUser';
+import { type User } from '@/types/User';
 import { fetchUsers, deleteUser } from '@/lib/api/users';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -32,7 +32,7 @@ export default function UsersTable() {
   const router = useRouter();
 
   // Component state
-  const [users, setUsers] = React.useState<LogisticsUser[]>([]); // List of users displayed
+  const [users, setUsers] = React.useState<User[]>([]); // List of users displayed
   const [loading, setLoading] = React.useState<boolean>(true); // Loading indicator
   const [error, setError] = React.useState<string | null>(null); // Error message from API
 
@@ -65,12 +65,12 @@ export default function UsersTable() {
   };
 
   // Navigate to the edit page for a given user
-  const handleEdit = (user: LogisticsUser) => {
+  const handleEdit = (user: User) => {
     router.push(`/dashboard/users/${user.userId}/edit`);
   };
 
   // Delete a user with a confirmation prompt
-  const handleDelete = async (user: LogisticsUser) => {
+  const handleDelete = async (user: User) => {
     const confirmed = window.confirm(
       `Are you sure you want to delete user "${user.username}"?`,
     );
@@ -101,7 +101,7 @@ export default function UsersTable() {
             headerName: 'Actions',
             type: 'actions' as const,
             width: 120,
-            getActions: ({ row }: { row: LogisticsUser }) => [
+            getActions: ({ row }: { row: User }) => [
               <GridActionsCellItem
                 key="edit-item"
                 icon={<EditIcon />}
