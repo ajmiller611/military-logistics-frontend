@@ -64,6 +64,11 @@ export default function UsersTable() {
     router.push('/dashboard/users/register');
   };
 
+  // Navigate to the create invitation page
+  const handleCreateInvitation = () => {
+    router.push('/dashboard/invitations');
+  };
+
   // Navigate to the edit page for a given user
   const handleEdit = (user: User) => {
     router.push(`/dashboard/users/${user.userId}/edit`);
@@ -131,13 +136,19 @@ export default function UsersTable() {
             <RefreshIcon />
           </IconButton>
           {isAdmin && (
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleCreate}
-            >
-              Create
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleCreate}
+              >
+                Create
+              </Button>
+
+              <Button variant="outlined" onClick={handleCreateInvitation}>
+                Create Invitation
+              </Button>
+            </>
           )}
         </Stack>
       }
