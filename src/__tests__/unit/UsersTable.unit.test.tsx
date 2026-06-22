@@ -52,7 +52,7 @@ describe('UsersTable Unit Tests - Admin user', () => {
 
     expect(await screen.findByText('Users')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
-    
+
     expect(
       screen.getByRole('button', { name: 'Create Invitation' }),
     ).toBeInTheDocument();

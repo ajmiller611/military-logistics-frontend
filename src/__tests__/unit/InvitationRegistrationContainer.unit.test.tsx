@@ -1,35 +1,26 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import InvitationRegistrationContainer from '@/components/InvitationRegistrationContainer';
-import { useRouter, useSearchParams } from 'next/navigation';
 import axiosInstance from '@/lib/axiosInstance';
 import axios from 'axios';
 
 jest.mock('@/lib/axiosInstance');
 jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
-  useSearchParams: jest.fn(),
+  useRouter: () => ({
+    push: pushMock,
+  }),
 }));
 
 const mockedAxios = axiosInstance as jest.Mocked<typeof axiosInstance>;
-const mockedUseSearchParams = useSearchParams as jest.Mock;
-const mockUseRouter = useRouter as jest.Mock;
 const pushMock = jest.fn();
 
 describe('InvitationRegistrationContainer', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     jest.spyOn(axios, 'isAxiosError').mockReturnValue(true);
-
-    mockUseRouter.mockReturnValue({
-      push: pushMock,
-    });
   });
 
-  const mockValidToken = () => {
-    mockedUseSearchParams.mockReturnValue({
-      get: jest.fn().mockReturnValue('valid-token'),
-    });
-
+  const mockValidTokenRequest = () => {
     mockedAxios.get.mockResolvedValue({
       status: 200,
       data: { email: 'test@email.com' },
@@ -53,29 +44,20 @@ describe('InvitationRegistrationContainer', () => {
 
   describe('token validation', () => {
     test('renders loading state while validating token', () => {
-      mockValidToken();
       mockedAxios.get.mockImplementation(() => new Promise(() => {}));
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       expect(screen.getByText(/validating invitation/i)).toBeInTheDocument();
     });
 
     test('displays error message for missing token', () => {
-      mockedUseSearchParams.mockReturnValue({
-        get: jest.fn().mockReturnValue(''),
-      });
-
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="" />);
 
       expect(screen.getByText(/missing invitation token/i)).toBeInTheDocument();
     });
 
     test('displays error message for invalid token', async () => {
-      mockedUseSearchParams.mockReturnValue({
-        get: jest.fn().mockReturnValue('invalid-token'),
-      });
-
       mockedAxios.get.mockRejectedValue({
         response: {
           data: {
@@ -84,17 +66,13 @@ describe('InvitationRegistrationContainer', () => {
         },
       });
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="invalid-token" />);
 
       expect(await screen.findByText(/invalid token/i)).toBeInTheDocument();
     });
 
     test('navigates to login page when Back to Login button is clicked', async () => {
-      mockedUseSearchParams.mockReturnValue({
-        get: jest.fn().mockReturnValue(''),
-      });
-
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="" />);
 
       await userEvent.click(
         screen.getByRole('button', { name: /back to login/i }),
@@ -104,9 +82,9 @@ describe('InvitationRegistrationContainer', () => {
     });
 
     test('renders registration form', async () => {
-      mockValidToken();
+      mockValidTokenRequest();
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       expect(await screen.findByLabelText(/username/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
@@ -124,7 +102,7 @@ describe('InvitationRegistrationContainer', () => {
         message: 'Network Error',
       });
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       expect(
         await screen.findByText(
@@ -138,7 +116,7 @@ describe('InvitationRegistrationContainer', () => {
 
       mockedAxios.get.mockRejectedValue(new Error('Boom'));
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       expect(
         await screen.findByText(/an unexpected error occurred/i),
@@ -146,9 +124,9 @@ describe('InvitationRegistrationContainer', () => {
     });
 
     test('pre-fills email field on valid token', async () => {
-      mockValidToken();
+      mockValidTokenRequest();
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       expect(
         await screen.findByDisplayValue('test@email.com'),
@@ -160,13 +138,13 @@ describe('InvitationRegistrationContainer', () => {
 
   describe('registration', () => {
     test('displays success message on successful registration', async () => {
-      mockValidToken();
+      mockValidTokenRequest();
       mockedAxios.post.mockResolvedValue({
         status: 201,
         data: {},
       });
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       await submitForm();
 
@@ -193,7 +171,7 @@ describe('InvitationRegistrationContainer', () => {
     });
 
     test('displays error message on user already exists', async () => {
-      mockValidToken();
+      mockValidTokenRequest();
       mockedAxios.post.mockRejectedValue({
         response: {
           status: 409,
@@ -203,7 +181,7 @@ describe('InvitationRegistrationContainer', () => {
         },
       });
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       await submitForm();
 
@@ -213,7 +191,7 @@ describe('InvitationRegistrationContainer', () => {
     });
 
     test('displays error message on invalid input message from API', async () => {
-      mockValidToken();
+      mockValidTokenRequest();
       mockedAxios.post.mockRejectedValue({
         response: {
           status: 400,
@@ -223,7 +201,7 @@ describe('InvitationRegistrationContainer', () => {
         },
       });
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       await submitForm();
 
@@ -231,17 +209,17 @@ describe('InvitationRegistrationContainer', () => {
     });
 
     test('displays error message on other server-side errors', async () => {
-      mockValidToken();
+      mockValidTokenRequest();
       mockedAxios.post.mockRejectedValue({
         response: {
           status: 500,
           data: {
-            message: 'An error occured',
+            message: 'An error occurred',
           },
         },
       });
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       await submitForm();
 
@@ -249,12 +227,12 @@ describe('InvitationRegistrationContainer', () => {
     });
 
     test('displays error message on no response from the server', async () => {
-      mockValidToken();
+      mockValidTokenRequest();
       mockedAxios.post.mockRejectedValue({
         message: 'Network Error',
       });
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       await submitForm();
 
@@ -264,12 +242,12 @@ describe('InvitationRegistrationContainer', () => {
     });
 
     test('displays error message on unexpected error during registration', async () => {
-      mockValidToken();
+      mockValidTokenRequest();
       jest.spyOn(axios, 'isAxiosError').mockReturnValue(false);
 
       mockedAxios.post.mockRejectedValue(new Error('Boom'));
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       await submitForm();
 
@@ -279,13 +257,13 @@ describe('InvitationRegistrationContainer', () => {
     });
 
     test('navigates to login page when Go to Login button is clicked', async () => {
-      mockValidToken();
+      mockValidTokenRequest();
       mockedAxios.post.mockResolvedValue({
         status: 201,
         data: {},
       });
 
-      render(<InvitationRegistrationContainer />);
+      render(<InvitationRegistrationContainer token="valid-token" />);
 
       await submitForm();
       await userEvent.click(

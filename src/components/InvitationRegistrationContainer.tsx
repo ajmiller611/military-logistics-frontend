@@ -3,11 +3,15 @@ import { useEffect, useState } from 'react';
 import UserRegistrationForm from '@/components/UserRegistrationForm';
 import axiosInstance from '@/lib/axiosInstance';
 import axios from 'axios';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { CreateUserRequest } from '@/types/UserRequest';
 import { Box, Button, Typography } from '@mui/material';
 
 const apiEndpoint = '/auth/register/invitation';
+
+interface InvitationRegistrationContainerProps {
+  token: string;
+}
 
 /**
  * Container component for invitation-based account registration.
@@ -16,11 +20,10 @@ const apiEndpoint = '/auth/register/invitation';
  * and management of loading, success, and error states. Delegates
  * form rendering and client-side validation to UserRegistrationForm.
  */
-export default function InvitationRegistrationContainer() {
+export default function InvitationRegistrationContainer({
+  token,
+}: InvitationRegistrationContainerProps) {
   const router = useRouter();
-
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token') || '';
 
   const [email, setEmail] = useState('');
   const [isValidatingToken, setIsValidatingToken] = useState(true);
