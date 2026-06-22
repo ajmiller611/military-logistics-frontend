@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { server } from '@/mocks/server';
 import { http, HttpResponse } from 'msw';
 import UsersTable from '@/components/UsersTable';
-import { type LogisticsUser } from '@/types/LogisticsUser';
+import { type User } from '@/types/User';
 import { api } from '@/mocks/api';
 import { useAuth } from '@/context/AuthContext';
 
@@ -22,7 +22,7 @@ jest.mock('@/context/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
 
-const mockUsers: LogisticsUser[] = [
+const mockUsers: User[] = [
   { userId: 1, username: 'user1', email: 'user1@example.com' },
   { userId: 2, username: 'user2', email: 'user2@example.com' },
 ];

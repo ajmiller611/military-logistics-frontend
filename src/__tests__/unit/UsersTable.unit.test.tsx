@@ -47,11 +47,16 @@ describe('UsersTable Unit Tests - Admin user', () => {
     jest.clearAllMocks();
   });
 
-  test('renders title, create button, and refresh button', async () => {
+  test('renders title, create and create invitation buttons, and refresh button', async () => {
     render(<UsersTable />);
 
     expect(await screen.findByText('Users')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /create/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: 'Create Invitation' }),
+    ).toBeInTheDocument();
+
     expect(
       screen.getByRole('button', { name: /refresh/i }),
     ).toBeInTheDocument();
@@ -61,10 +66,20 @@ describe('UsersTable Unit Tests - Admin user', () => {
     render(<UsersTable />);
 
     await userEvent.click(
-      await screen.findByRole('button', { name: /create/i }),
+      await screen.findByRole('button', { name: 'Create' }),
     );
 
     expect(pushMock).toHaveBeenCalledWith('/dashboard/users/register');
+  });
+
+  test('create invitation button navigates to /dashboard/invitations', async () => {
+    render(<UsersTable />);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Create Invitation' }),
+    );
+
+    expect(pushMock).toHaveBeenCalledWith('/dashboard/invitations');
   });
 
   test('edit button navigates to edit page for user', async () => {

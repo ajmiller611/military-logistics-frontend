@@ -19,6 +19,7 @@ import { styled } from '@mui/material/styles';
 import { createUserSchema, CreateUserInput } from '@/schemas/userSchema';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CreateUserRequest } from '@/types/UserRequest';
 
 const FormGrid = styled(Grid2)(() => ({
   display: 'flex',
@@ -27,17 +28,20 @@ const FormGrid = styled(Grid2)(() => ({
 
 type Props = {
   /** Callback invoked with validated form data */
-  onSubmit: SubmitHandler<CreateUserInput>;
+  onSubmit: SubmitHandler<CreateUserRequest>;
   /** Indicates whether a submission is in progress */
   isLoading: boolean;
   /** API-level validation or server errors mapped by field name */
   apiResponse?: Record<string, string>;
+  /** Default email for invitation workflow */
+  defaultEmail?: string;
 };
 
-export default function CreateUserForm({
+export default function UserRegistrationForm({
   onSubmit,
   apiResponse,
   isLoading,
+  defaultEmail,
 }: Readonly<Props>) {
   // react-hook-form handles form state and integrates schema validation via Zod
   const {
@@ -46,10 +50,18 @@ export default function CreateUserForm({
     formState: { errors },
   } = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      email: defaultEmail ?? '',
+    },
   });
 
   const handleFormSubmit: SubmitHandler<CreateUserInput> = (data) => {
-    onSubmit(data);
+    const request: CreateUserRequest = {
+      username: data.username,
+      password: data.password,
+      email: data.email,
+    };
+    onSubmit(request);
   };
 
   return (
@@ -94,6 +106,28 @@ export default function CreateUserForm({
           )}
         </FormGrid>
         <FormGrid size={{ xs: 12, md: 6 }}>
+          <FormLabel htmlFor="email" required>
+            Email
+          </FormLabel>
+          <OutlinedInput
+            id="email"
+            type="email"
+            placeholder="email@example.com"
+            required
+            size="small"
+            {...register('email')}
+            readOnly={Boolean(defaultEmail)}
+          />
+          {errors.email && (
+            <FormHelperText error>
+              {(errors.email as { message: string }).message}
+            </FormHelperText>
+          )}
+          {apiResponse?.email && (
+            <FormHelperText error>{apiResponse.email}</FormHelperText>
+          )}
+        </FormGrid>
+        <FormGrid size={{ xs: 12, md: 6 }}>
           <FormLabel htmlFor="password" required>
             Password
           </FormLabel>
@@ -115,24 +149,21 @@ export default function CreateUserForm({
           )}
         </FormGrid>
         <FormGrid size={{ xs: 12, md: 6 }}>
-          <FormLabel htmlFor="email" required>
-            Email
+          <FormLabel htmlFor="confirmPassword" required>
+            Confirm Password
           </FormLabel>
           <OutlinedInput
-            id="email"
-            type="email"
-            placeholder="email@example.com"
+            id="confirmPassword"
+            type="password"
+            placeholder="confirm password"
             required
             size="small"
-            {...register('email')}
+            {...register('confirmPassword')}
           />
-          {errors.email && (
+          {errors.confirmPassword && (
             <FormHelperText error>
-              {(errors.email as { message: string }).message}
+              {(errors.confirmPassword as { message: string }).message}
             </FormHelperText>
-          )}
-          {apiResponse?.email && (
-            <FormHelperText error>{apiResponse.email}</FormHelperText>
           )}
         </FormGrid>
       </Grid2>

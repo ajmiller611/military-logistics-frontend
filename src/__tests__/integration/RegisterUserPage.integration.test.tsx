@@ -35,7 +35,11 @@ describe('RegisterUserPage Integration Tests', () => {
 
   const fillAndSubmitForm = async () => {
     await userEvent.type(screen.getByLabelText(/username/i), 'testUser');
-    await userEvent.type(screen.getByLabelText(/password/i), 'Test@1234');
+    await userEvent.type(screen.getByPlaceholderText('password'), 'Test@1234');
+    await userEvent.type(
+      screen.getByPlaceholderText('confirm password'),
+      'Test@1234',
+    );
     await userEvent.type(screen.getByLabelText(/email/i), 'test@example.com');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
   };
